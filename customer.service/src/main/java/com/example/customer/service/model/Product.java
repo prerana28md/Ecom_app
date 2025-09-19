@@ -20,7 +20,8 @@ public class Product {
     public Product() {}
 
     // Parameterized constructor (without id)
-    public Product(String name, String description, double price, int stock, String category, List<String> tags) {
+    public Product(String id,String name, String description, double price, int stock, String category, List<String> tags) {
+    	this.id=id;
         this.name = name;
         this.description = description;
         this.price = price;

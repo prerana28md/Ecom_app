@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:9090/customers";
+const API_URL = "https://ecom-app-1-6mjy.onrender.com/customers";
 
 // Get all customers
 const getAllCustomers = () => {
