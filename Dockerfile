@@ -1,14 +1,17 @@
-#----------- Build Stage -------------
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY pom.xml .
+
+# Copy pom.xml and src from correct folder
+COPY customer.service/pom.xml .
 RUN mvn dependency:go-offline
-COPY src/ ./src
+
+COPY customer.service/src ./src
 RUN mvn clean package -DskipTests
 
-# -------------Runtime Stage-----------
+# Run stage
 FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
+
 EXPOSE 9090
 ENTRYPOINT ["java","-jar","app.jar"]
