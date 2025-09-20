@@ -1,52 +1,66 @@
 package com.example.customer.service.controller;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.example.customer.service.repository.OrderRepository;
 import com.example.customer.service.model.Order;
-
+import com.example.customer.service.repository.OrderRepository;
 
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
-	
-	private static final Logger log = LoggerFactory.getLogger(OrderController.class);
-	@Autowired
-	private OrderRepository orderRepository;
-	
-	@PostMapping
-	public Order createOrder(@RequestBody Order order) {
-		return orderRepository.save(order);
-	}
-	
-	@GetMapping
-	public List<Order> getAllOrders(){
-		return orderRepository.findAll();
-	}
-	@DeleteMapping("/{id}")
-	public String deleteProduct(@PathVariable String id) {
-		
-		Optional<Order> findproduct=orderRepository.findById(id);
-		if(findproduct.isEmpty()) {
-			log.error("Failed to delete product"+id);
-			return "Failed to delete product";
-		}
-		orderRepository.deleteById(id);
-		log.info("Product Deleted"+id);
-		return "Product Deleted";
-		
-	}
-	
 
+    @Autowired
+    private OrderRepository orderRepository;
+
+    // Create Order
+    @PostMapping
+    public Order createOrder(@RequestBody Order order) {
+        order.setCreatedAt(LocalDateTime.now());
+        double total = order.getItems()
+                            .stream()
+                            .mapToDouble(item -> item.getQty() * item.getPrice())
+                            .sum();
+        order.setTotalAmount(total);
+        order.setStatus("pending");
+        return orderRepository.save(order);
+    }
+
+    // Get all Orders
+    @GetMapping
+    public List<Order> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    // Get Orders by UserId
+    @GetMapping("/user/{userId}")
+    public List<Order> getOrdersByUser(@PathVariable String userId) {
+        return orderRepository.findByUserId(userId);
+    }
+
+    // Update Order Status
+    @PutMapping("/{id}/status")
+    public Order updateStatus(@PathVariable String id, @RequestParam String status) {
+        Optional<Order> orderOpt = orderRepository.findById(id);
+        if (orderOpt.isEmpty()) {
+            throw new RuntimeException("Order not found");
+        }
+        Order order = orderOpt.get();
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
+    // Delete Order
+    @DeleteMapping("/{id}")
+    public String deleteOrder(@PathVariable String id) {
+        if (!orderRepository.existsById(id)) {
+            return "Order not found";
+        }
+        orderRepository.deleteById(id);
+        return "Order deleted successfully";
+    }
 }
