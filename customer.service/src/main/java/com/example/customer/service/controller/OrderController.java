@@ -36,12 +36,6 @@ public class OrderController {
         return orderRepository.findAll();
     }
 
-    // Get Orders by UserId
-    @GetMapping("/user/{userId}")
-    public List<Order> getOrdersByUser(@PathVariable String userId) {
-        return orderRepository.findByUserId(userId);
-    }
-
     // Update Order Status
     @PutMapping("/{id}/status")
     public Order updateStatus(@PathVariable String id, @RequestParam String status) {
