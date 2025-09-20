@@ -20,23 +20,6 @@ public class OrderController {
     // Create Order
     @PostMapping
     public Order createOrder(@RequestBody Order order) {
-        // Set createdAt only if not already provided
-        if (order.getCreatedAt() == null) {
-            order.setCreatedAt(LocalDateTime.now());
-        }
-
-        // Calculate totalAmount from items
-        double total = order.getItems()
-                            .stream()
-                            .mapToDouble(item -> item.getQty() * item.getPrice())
-                            .sum();
-        order.setTotalAmount(total);
-
-        // If status is missing, default to "pending"
-        if (order.getStatus() == null || order.getStatus().isEmpty()) {
-            order.setStatus("pending");
-        }
-
         return orderRepository.save(order);
     }
 
