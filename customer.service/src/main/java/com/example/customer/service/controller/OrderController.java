@@ -27,6 +27,7 @@ public class OrderController {
                             .sum();
         order.setTotalAmount(total);
         order.setStatus("pending");
+        order.setCreatedAt(LocalDateTime.now()); // auto set current time
         return orderRepository.save(order);
     }
 
